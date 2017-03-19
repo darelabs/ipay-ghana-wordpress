@@ -203,12 +203,12 @@ class Ipay_Ghana_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		echo $args['before_widget'];
 
-		if ( ! empty( $instance['title'] ) ) {
-			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
+		if ( ! empty( $instance['payment-collection-title'] ) ) {
+			echo $args['before_title'] . apply_filters( 'widget_title', $instance['payment-collection-title'] ) . $args['after_title'];
 		}
 
-		if ( ! empty( $instance['button_label'] ) ) {
-			echo '<button type="button" class="btn btn-info" data-toggle="modal" data-backdrop="static" data-target="#ipay-ghana-payment-modal">' . apply_filters( 'widget_title', $instance['button_label'] ) . '</button>';
+		if ( ! empty( $instance['payment-collection-btn-name'] ) ) {
+			echo '<button type="button" class="btn btn-info" data-toggle="modal" data-backdrop="static" data-target="#ipay-ghana-payment-modal">' . apply_filters( 'widget_title', $instance['payment-collection-btn-name'] ) . '</button>';
 		} ?>
 
 		<div id="ipay-ghana-payment-modal" class="modal fade" role="dialog" tabindex="-1">
@@ -280,25 +280,31 @@ class Ipay_Ghana_Widget extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		$title = ! empty( $instance['title'] ) ? $instance['title'] : esc_html__( 'iPay Ghana Payment', '' );
-		$button_label = ! empty( $instance['button_label'] ) ? $instance['button_label'] : esc_html__( 'Pay', '' );
+		$title = ! empty( $instance['payment-collection-title'] ) ? $instance['payment-collection-title'] : esc_html__( 'iPay Ghana Payment', '' );
+		$payment_collection_btn_name = ! empty( $instance['payment-collection-btn-name'] ) ? $instance['payment-collection-btn-name'] : esc_html__( 'Pay', '' );
+		$payment_collection_desc = ! empty( $instance['payment-collection-description'] ) ? $instance['payment-collection-description'] : esc_html__( '', '' );
 		?>
 
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_attr_e( 'Title:', '' ); ?></label>
-			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'payment-collection-title' ) ); ?>"><?php esc_attr_e( 'Title:', '' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'payment-collection-title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'payment-collection-title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>">
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'button_label' ) ); ?>"><?php esc_attr_e( 'Label of button:', '' ); ?></label>
-			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'button_label' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'button_label' ) ); ?>" type="text" value="<?php echo esc_attr( $button_label ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'payment-collection-btn-name' ) ); ?>"><?php esc_attr_e( 'Label of button:', '' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'payment-collection-btn-name' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'payment-collection-btn-name' ) ); ?>" type="text" value="<?php echo esc_attr( $payment_collection_btn_name ); ?>">
+		</p>
+		<p>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'payment-collection-description' ) ); ?>"><?php esc_attr_e( 'Description of collection method:', '' ); ?></label>
+			<textarea class="widefat" rows="3" id="<?php echo esc_attr( $this->get_field_id( 'payment-collection-description' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'payment-collection-description' ) ); ?>"><?php echo esc_attr( $payment_collection_desc ); ?></textarea>
 		</p>
 		<?php
 	}
 
 	public function update( $new_instance, $old_instance ) {
 		$instance = [];
-		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-		$instance['button_label'] = ( ! empty( $new_instance['button_label'] ) ) ? strip_tags( $new_instance['button_label'] ) : '';
+		$instance['payment-collection-title'] = ( ! empty( $new_instance['payment-collection-title'] ) ) ? strip_tags( $new_instance['payment-collection-title'] ) : '';
+		$instance['payment-collection-btn-name'] = ( ! empty( $new_instance['payment-collection-btn-name'] ) ) ? strip_tags( $new_instance['payment-collection-btn-name'] ) : '';
+		$instance['payment-collection-description'] = ( ! empty( $new_instance['payment-collection-description'] ) ) ? strip_tags( $new_instance['payment-collection-description'] ) : '';
 		return $instance;
 	}
 
