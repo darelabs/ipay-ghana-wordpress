@@ -226,14 +226,14 @@ class Ipay_Ghana_Widget extends WP_Widget {
 					<form method="post" action="https://community.ipaygh.com/gateway" id="ipay-ghana-payment-form" target="_blank">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
-							<?php echo $title = ! empty( get_option( 'brand-logo-url' )  !== '' ) ?
+							<?php echo ! empty( get_option( 'brand-logo-url' )  !== '' ) ?
 								'<img src="' .get_option( 'brand-logo-url' ) . '" class="center-block" alt="' . get_bloginfo( 'name' ) . '"/>' :
 								'<h4 class="lead">Payment Details</h4>';
 							?>
 
 						</div>
 						<div class="modal-body">
-							<?php echo $title = ! empty( get_option( 'brand-logo-url' )  !== '' ) ? '<h4 class="lead">Payment Details</h4>' : ''; ?>
+							<?php echo ! empty( get_option( 'brand-logo-url' )  !== '' ) ? '<h4 class="lead">Payment Details</h4>' : ''; ?>
 
 							<input type="hidden" name="merchant_key" value="<?php echo get_option( 'merchant-key' ); ?>">
 							<input type="hidden" name="success_url" value="<?php echo get_option( 'success-url' ); ?>">
