@@ -227,7 +227,7 @@ class Ipay_Ghana_Widget extends WP_Widget {
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 							<?php echo ! empty( get_option( 'brand-logo-url' )  !== '' ) ?
-								'<img src="' .get_option( 'brand-logo-url' ) . '" class="center-block" alt="' . get_bloginfo( 'name' ) . '"/>' :
+								'<img src="' .get_option( 'brand-logo-url' ) . '" width="180px" height="70px" class="center-block" alt="' . get_bloginfo( 'name' ) . '"/>' :
 								'<h4 class="lead">Payment Details</h4>';
 							?>
 
