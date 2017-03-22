@@ -55,12 +55,13 @@ function ipay_ghana_plugin_support( $meta, $plugin_file ) {
 add_filter( 'plugin_row_meta', 'ipay_ghana_plugin_support', 10, 4 );
 
 function ipay_ghana_admin_settings_options() {
-    register_setting( 'ipay-ghana-settings-options-group', 'merchant-key' );
-    register_setting( 'ipay-ghana-settings-options-group', 'success-url' );
-    register_setting( 'ipay-ghana-settings-options-group', 'cancelled-url' );
-    register_setting( 'ipay-ghana-settings-options-group', 'deferred-url' );
-    register_setting( 'ipay-ghana-settings-options-group', 'invoice-id-prefix' );
-    register_setting( 'ipay-ghana-settings-options-group', 'invoice-id-format' );
+	register_setting( 'ipay-ghana-settings-options-group', 'success-url' );
+	register_setting( 'ipay-ghana-settings-options-group', 'deferred-url' );
+	register_setting( 'ipay-ghana-settings-options-group', 'merchant-key' );
+	register_setting( 'ipay-ghana-settings-options-group', 'cancelled-url' );
+    register_setting( 'ipay-ghana-settings-options-group', 'brand-logo-url' );
+	register_setting( 'ipay-ghana-settings-options-group', 'invoice-id-format' );
+	register_setting( 'ipay-ghana-settings-options-group', 'invoice-id-prefix' );
     register_setting( 'ipay-ghana-settings-options-group', 'advance-invoice-id-generator' );
 }
 
@@ -102,6 +103,60 @@ function ipay_ghana_settings_page() { ?>
                         <p class="description">Don&rsquo;t have a Merchant key? Register <a href="https://manage.ipaygh.com/xmanage/get-started" target="_blank">here</a> to get started.</p>
                     </td>
                 </tr>
+	            <tr>
+		            <th scope="row">Invoice ID format</th>
+		            <td>
+			            <fieldset>
+				            <legend class="screen-reader-text">
+					            <span>Invoice ID Format</span>
+				            </legend>
+				            <label>
+					            <input type="radio" name="invoice-id-format" value="default" checked>
+					            <span class="invoice-id-format-text">Default (ymdHsi)</span>
+					            <code><?php echo esc_attr( $GLOBALS['default-invoice-id-sequence'] ); ?></code>
+				            </label>
+				            <br>
+				            <label>
+					            <input type="radio" name="invoice-id-format" value="custom" <?php checked( 'custom', get_option( 'invoice-id-format' ) ); ?>>
+								<span class="invoice-id-format-text">Custom; default, with a prefix: a maximum of three (3) characters.
+									<span class="screen-reader-text"> enter a custom invoice id format in the following field</span>
+								</span>
+				            </label>
+				            <label for="invoice-id-prefix" class="screen-reader-text">Custom invoice id format:</label>
+				            <input type="text" name="invoice-id-prefix" id="invoice-id-prefix" value="<?php echo esc_attr( get_option( 'invoice-id-prefix' ) ); ?>" class="small-text" maxlength="3" placeholder="WP-">
+				            <span class="screen-reader-text">example: </span>
+				            <code><span id="example"><?php echo get_option( 'invoice-id-prefix' ) ? : 'WP-';?></span><?php echo esc_attr( $GLOBALS['default-invoice-id-sequence'] ); ?></code>
+				            <br>
+				            <label>
+					            <input type="radio" name="invoice-id-format" value="advance" <?php checked( 'advance', get_option( 'invoice-id-format' ) ); ?>>
+					            <span class="invoice-id-format-text">Advance, for full control (if you know what you are doing)</span>
+				            </label>
+				            <br>
+				            <div id="advance-invoice-id-generator-block" style="display: none;">
+					            <p>Before using the Advance option so as to define your fully customised Invoice ID format, be mindful that:</p>
+					            <ol>
+						            <li>Your function should only return an instance (ideally, an incremental sequence, with respect to your desired invoice ID format), when accessed.</li>
+						            <li>The generated invoice ID instance ought to be unique per transaction in order for the later to be successful.</li>
+						            <li>The generated invoice ID instance should not exceed the maximum allowed characters count for such a purpose; either: fifteen (15) characters.</li>
+					            </ol>
+					            <p>
+						            <label for="advance-invoice-id-generator">Put your custom invoice ID instance generator function in the box provided below:</label>
+					            </p>
+					            <p>
+						            <textarea name="advance-invoice-id-generator" rows="10" cols="50" id="advance-invoice-id-generator" class="large-text code" readonly><?php echo "Will be enabled in our next update.\r\nCurrently disabled and will return the default Invoice ID format if selected."; ?></textarea>
+					            </p>
+				            </div>
+			            </fieldset>
+		            </td>
+	            </tr>
+                <tr>
+                    <th scope="row">
+                        <label>Brand logo URL</label>
+                    </th>
+                    <td>
+                        <input type="text" title="Define a URL to load your brand logo" class="regular-text" name="brand-logo-url" value="<?php echo esc_attr( get_option( 'brand-logo-url' ) ); ?>"/>
+                    </td>
+                </tr>
                 <tr>
                     <th scope="row">
                         <label>Success URL</label>
@@ -124,52 +179,6 @@ function ipay_ghana_settings_page() { ?>
                     </th>
                     <td>
                         <input type="text" title="Define a URL to redirect on defer here" class="regular-text" name="deferred-url" value="<?php echo esc_attr( get_option( 'deferred-url' ) ); ?>"/>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Invoice ID format</th>
-                    <td>
-                        <fieldset>
-                            <legend class="screen-reader-text">
-                                <span>Invoice ID Format</span>
-                            </legend>
-                            <label>
-                                <input type="radio" name="invoice-id-format" value="default" checked>
-                                <span class="invoice-id-format-text">Default (ymdHsi)</span>
-                                <code><?php echo esc_attr( $GLOBALS['default-invoice-id-sequence'] ); ?></code>
-                            </label>
-                            <br>
-                            <label>
-                                <input type="radio" name="invoice-id-format" value="custom" <?php checked( 'custom', get_option( 'invoice-id-format' ) ); ?>>
-								<span class="invoice-id-format-text">Custom; default, with a prefix: a maximum of three (3) characters.
-									<span class="screen-reader-text"> enter a custom invoice id format in the following field</span>
-								</span>
-                            </label>
-                            <label for="invoice-id-prefix" class="screen-reader-text">Custom invoice id format:</label>
-                            <input type="text" name="invoice-id-prefix" id="invoice-id-prefix" value="<?php echo esc_attr( get_option( 'invoice-id-prefix' ) ); ?>" class="small-text" maxlength="3" placeholder="WP-">
-                            <span class="screen-reader-text">example: </span>
-                            <code><span id="example"><?php echo get_option( 'invoice-id-prefix' ) ? : 'WP-';?></span><?php echo esc_attr( $GLOBALS['default-invoice-id-sequence'] ); ?></code>
-                            <br>
-                            <label>
-                                <input type="radio" name="invoice-id-format" value="advance" <?php checked( 'advance', get_option( 'invoice-id-format' ) ); ?>>
-                                <span class="invoice-id-format-text">Advance, for full control (if you know what you are doing)</span>
-                            </label>
-                            <br>
-                            <div id="advance-invoice-id-generator-block" style="display: none;">
-                                <p>Before using the Advance option so as to define your fully customised Invoice ID format, be mindful that:</p>
-                                <ol>
-                                    <li>Your function should only return an instance (ideally, an incremental sequence, with respect to your desired invoice ID format), when accessed.</li>
-                                    <li>The generated invoice ID instance ought to be unique per transaction in order for the later to be successful.</li>
-                                    <li>The generated invoice ID instance should not exceed the maximum allowed characters count for such a purpose; either: fifteen (15) characters.</li>
-                                </ol>
-                                <p>
-                                    <label for="advance-invoice-id-generator">Put your custom invoice ID instance generator function in the box provided below:</label>
-                                </p>
-                                <p>
-									<textarea name="advance-invoice-id-generator" rows="10" cols="50" id="advance-invoice-id-generator" class="large-text code" readonly><?php echo "Will be enabled in our next update.\r\nCurrently disabled and will return the default Invoice ID format if selected."; ?></textarea>
-                                </p>
-                            </div>
-                        </fieldset>
                     </td>
                 </tr>
             </table>
@@ -217,9 +226,15 @@ class Ipay_Ghana_Widget extends WP_Widget {
 					<form method="post" action="https://community.ipaygh.com/gateway" id="ipay-ghana-payment-form" target="_blank">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
-							<h4 class="modal-title">Payment Details</h4>
+							<?php echo $title = ! empty( get_option( 'brand-logo-url' )  !== '' ) ?
+								'<img src="' .get_option( 'brand-logo-url' ) . '" class="center-block" alt="' . get_bloginfo( 'name' ) . '"/>' :
+								'<h4 class="lead">Payment Details</h4>';
+							?>
+
 						</div>
 						<div class="modal-body">
+							<?php echo $title = ! empty( get_option( 'brand-logo-url' )  !== '' ) ? '<h4 class="lead">Payment Details</h4>' : ''; ?>
+
 							<input type="hidden" name="merchant_key" value="<?php echo get_option( 'merchant-key' ); ?>">
 							<input type="hidden" name="success_url" value="<?php echo get_option( 'success-url' ); ?>">
 							<input type="hidden" name="cancelled_url" value="<?php echo get_option( 'cancelled-url' ); ?>">

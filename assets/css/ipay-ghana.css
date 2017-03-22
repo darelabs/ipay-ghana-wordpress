@@ -13,3 +13,11 @@
 #ipay-ghana-payment-form textarea {
     resize: none;
 }
+#ipay-ghana-payment-form .modal-header .lead {
+    margin: 0;
+    padding-top: 0;
+    text-align: center;
+}
+#ipay-ghana-payment-form .modal-body .lead {
+    border-bottom: 1px solid red;
+}
