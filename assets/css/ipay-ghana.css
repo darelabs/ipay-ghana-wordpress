@@ -10,3 +10,6 @@
     float: left!important;
     width: 155px;
 }
+#ipay-ghana-payment-form textarea {
+    resize: none;
+}

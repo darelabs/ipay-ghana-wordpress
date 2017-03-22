@@ -14,7 +14,7 @@
 		ipayGhanaMerchantKey = $( document ).find( 'input[name="merchant_key"]' ).attr( 'value' ),
 		extraMobileNo = $( 'input[name="extra_mobile_no"]' );
 
-	ipayGhanaPay.show().append( 'Initiate Payment' );
+	ipayGhanaPay.show().append( 'Check out' );
 	ipayGhanaDismissModal.show().append( 'Cancel' );
 	ipayGhanaCheckStatus.hide().append( 'Check Payment Status' );
 

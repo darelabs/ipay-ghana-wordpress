@@ -214,7 +214,7 @@ class Ipay_Ghana_Widget extends WP_Widget {
 		<div id="ipay-ghana-payment-modal" class="modal fade" role="dialog" tabindex="-1">
 			<div class="modal-dialog">
 				<div class="modal-content">
-					<form method="post" action="https://community.ipaygh.com/gateway" id="ipay-ghana-payment-form" class="form-inline" target="_blank">
+					<form method="post" action="https://community.ipaygh.com/gateway" id="ipay-ghana-payment-form" target="_blank">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 							<h4 class="modal-title">Payment Details</h4>
@@ -223,7 +223,7 @@ class Ipay_Ghana_Widget extends WP_Widget {
 							<input type="hidden" name="merchant_key" value="<?php echo get_option( 'merchant-key' ); ?>">
 							<input type="hidden" name="success_url" value="<?php echo get_option( 'success-url' ); ?>">
 							<input type="hidden" name="cancelled_url" value="<?php echo get_option( 'cancelled-url' ); ?>">
-							<input type="hidden" name="deferred_url" value="<?php echo get_option( 'deferred-url' ) . '">';
+							<input type="hidden" name="deferred_url" value="<?php echo get_option( 'deferred-url' ); ?>"><?php
 
 							switch ( get_option( 'invoice-id-format' ) ) {
 								case 'custom':
@@ -238,28 +238,30 @@ class Ipay_Ghana_Widget extends WP_Widget {
 									break;
 							} ?>
 
-							<input type="hidden" name="extra_mobile_no">
 							<div class="row">
-								<div class="form-group col-md-3">
-									<label for="network">Select Network</label>
-									<select id="network" name="extra_wallet_issuer_hint" required>
-										<option disabled selected value>-- Select One --</option>
-										<option value="mtn">MTN Mobile Money</option>
-										<option value="airtel">Airtel Money</option>
-										<option value="tigo">TiGO Cash</option>
-									</select>
+								<div class="form-group col-xs-12 col-sm-6">
+									<label for="extra-name">Name</label>
+									<input type="text" id="extra-name" name="extra_name" required>
 								</div>
-								<div class="form-group col-md-3">
-									<label for="phone_number">Phone Number</label>
-									<input type="text" id="phone_number" name="pymt_instrument" required>
-								</div>
-								<div class="form-group col-md-3">
-									<label for="total">Amount</label>
+							</div>
+							<div class="row">
+								<div class="form-group col-xs-12 col-sm-3">
+									<label for="total">Payment Amount</label>
 									<input type="text" id="total" name="total" required>
 								</div>
-								<div class="form-group col-md-3">
+								<div class="form-group col-xs-12 col-sm-3">
+									<label for="extra-mobile">Contact Number</label>
+									<input type="text" id="extra-mobile" name="extra_mobile" required>
+								</div>
+								<div class="form-group col-xs-12 col-sm-6">
 									<label for="extra-email">Email [Optional]</label>
 									<input type="text" id="extra-email" name="extra_email">
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group col-xs-12">
+									<label for="description">Description of Payment/ Item Order Number</label>
+									<textarea rows="3" id="description" name="description" required><?php echo apply_filters( 'widget_title', $instance['payment-collection-description'] );?></textarea>
 								</div>
 							</div>
 							<div id="ipay-ghana-payment-progress" style="display: none;"></div>
