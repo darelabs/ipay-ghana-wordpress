@@ -1,0 +1,20 @@
+{
+  "name": "darelabs/ipay-ghana-wordpress",
+  "description": "Receive online payments on your WordPress site in Ghana.",
+  "type": "wordpress-plugin",
+  "keywords": [
+    "payment",
+    "wordpress-plugin"
+  ],
+  "homepage": "https://www.ipaygh.com/",
+  "license": "GPL-3.0",
+  "support": {
+    "page": "https://www.ipaygh.com/pages/help-support/",
+    "issues": "https://github.com/darelabs/ipay-ghana-wordpress/issues/",
+    "wiki": "https://github.com/darelabs/ipay-ghana-wordpress/wiki/"
+  },
+  "require": {
+    "composer/installers": "~1.0",
+    "php": ">=5.4"
+  }
+}
