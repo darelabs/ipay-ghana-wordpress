@@ -22,6 +22,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 $GLOBALS['default-invoice-id-sequence'] = date( 'ymdHis', time() );
 $GLOBALS['custom-invoice-id-sequence']  = $GLOBALS['default-invoice-id-sequence'];
 
+function ipay_ghana_text_domain() {
+	load_plugin_textdomain( '', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+add_action( 'plugins_loaded', 'ipay_ghana_text_domain' );
+
 function ipay_ghana_admin_styles_and_scripts() {
 	wp_enqueue_style( 'ipay-ghana-admin-style', plugins_url( '/assets/css/ipay-ghana-admin.css', __FILE__ ), false, '', 'all' );
 	wp_enqueue_script( 'ipay-ghana-admin-script', plugins_url( '/assets/js/ipay-ghana-admin.js', __FILE__ ), false, '' );
@@ -40,6 +45,11 @@ function ipay_ghana_plugin_action( $actions, $plugin_file ) {
 		return $actions;
 	}
 	$settings_link = '<a href="options-general.php?page=ipay-ghana-settings">Settings</a>';
+
+	if ( class_exists( 'WC_Payment_Gateway' ) ) {
+		$settings_link .= ' | <a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=ipay-ghana-wc-payment' ) . '">WooCommerce Settings</a>';
+	}
+	
 	array_unshift( $actions, $settings_link );
 	return $actions;
 }
@@ -331,3 +341,142 @@ function register_ipay_ghana_widget() {
 	register_widget( 'Ipay_Ghana_Widget' );
 }
 add_action( 'widgets_init', 'register_ipay_ghana_widget' );
+
+function init_ipay_ghana_wc_payment_gateway() {
+	if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
+		exit;
+	}
+
+	class Ipay_Ghana_WC_Payment_Gateway extends WC_Payment_Gateway {
+		public function __construct() {
+			$this->id                   = 'ipay-ghana-wc-payment';
+			$this->icon                 = plugins_url( '/assets/img/powered-by-ipay-ghana.jpeg', __FILE__ );
+			$this->has_fields           = true;
+			$this->method_title         = __( 'iPay Ghana Payment', '' );
+			$this->method_description   = __( 'Receive mobile payments on your WooCommerce store in Ghana.', '' );
+			$this->init_form_fields();
+			$this->init_settings();
+			$this->title                = $this->get_option( 'title' );
+			$this->description          = $this->get_option( 'description' );
+
+			add_action( 'admin_notices', array( $this, 'do_ssl_check' ) );
+		}
+
+		public function do_ssl_check() {
+			if ( $this->enabled === 'yes' ) {
+				if ( get_option( 'woocommerce_force_ssl_checkout' ) === 'no' ) {
+					echo '<div class="error"><p>' . sprintf( __( '<strong>%s</strong> is enabled and WooCommerce is not forcing the SSL certificate on your checkout page. Please ensure that you have a valid SSL certificate and that you are <a href="%s">forcing the checkout pages to be secured</a>.' ), $this->method_title, admin_url( 'admin.php?page=wc-settings&tab=checkout' ) ) . '</p></div>';
+				}
+			}
+		}
+
+		public function init_form_fields() {
+			$this->form_fields = array(
+				'enabled' => array(
+					'title'       => __( 'Enable/Disable', '' ),
+					'type'        => 'checkbox',
+					'label'       => __( 'Enable iPay Ghana Payment', '' ),
+					'default'     => 'no'
+				),
+				'title' => array(
+					'title'       => __( 'Title', '' ),
+					'type'        => 'text',
+					'description' => __( 'This controls the title which the user sees during checkout.', '' ),
+					'default'     => __( 'iPay Ghana Payment', '' ),
+					'desc_tip'    => true,
+				),
+				'description' => array(
+					'title'       => __( 'Description', '' ),
+					'type'        => 'textarea',
+					'description' => __( 'Payment method description that the customer will see on your checkout.', '' ),
+					'default'     => __( 'You will be redirected to the iPay Ghana Check Out page so as to proceed with the payment.', '' ),
+					'desc_tip'    => true,
+				),
+			);
+		}
+
+		public function payment_fields() { ?>
+
+			<p class="form-group">
+				<label for="network_operator">Select Network</label>
+				<select id="network_operator" class="" name="extra_wallet_issuer_hint" required>
+					<option disabled selected value> -- Select One -- </option>
+					<option value="airtel">Airtel Money</option>
+					<option value="mtn">MTN Mobile Money</option>
+					<option value="tigo">tiGO Cash</option>
+				</select>
+			</p>
+			<p class="form-row form-row validate-required validate-phone" id="wallet_number_field">
+				<label for="mobile_wallet_number">Phone Number <abbr class="required" title="required">*</abbr></label>
+				<input type="tel" class="input-text" id="mobile_wallet_number" name="pymt_instrument" placeholder="Enter your wallet number here." autocomplete="on" required>
+			</p>
+		<?php }
+		
+		public function process_payment( $order_id ) {
+			$order = wc_get_order( $order_id );
+
+			$api = 'https://community.ipaygh.com/v1/';
+
+			$payload = [
+				'merchant_key'               => get_option( 'merchant-key' ),
+				'success_url'                => get_option( 'success-url' ),
+				'cancelled_url'              => get_option( 'cancelled-url' ),
+				'deferred_url'               => get_option( 'deferred-url' ),
+				'total'             	     => $order->order_total,
+				'invoice_id'                 => str_replace( '#', '', $order->get_order_number() ),
+				'extra_wallet_issuer_hint'   => ( isset( $_POST['extra_wallet_issuer_hint'] ) && ! empty( $_POST['extra_wallet_issuer_hint'] ) ) ? $_POST['extra_wallet_issuer_hint'] : $_POST['extra_wallet_issuer_hint'],
+				'pymt_instrument'            => $wallet_number = ( isset( $_POST['pymt_instrument'] ) && ! empty( $_POST['pymt_instrument'] ) ) ? $_POST['pymt_instrument'] : $_POST['pymt_instrument'],
+				'extra_name'         	     => $order->billing_first_name . ' ' . $order->billing_last_name,
+				'extra_mobile'         	     => $order->billing_phone,
+				'extra_email'          	     => $order->billing_email,
+				'description'          	     => get_bloginfo( 'name' ) . ' WooCommerce transaction Order ID: ' . $order_id,
+			];
+
+			$response = wp_remote_post( $api . 'mobile_agents_v2', [
+				'method'    => 'POST',
+				'body'      => http_build_query( $payload ),
+				'timeout'   => 90,
+				'sslverify' => false,
+			] );
+
+			if ( is_wp_error( $response ) ) {
+				throw new Exception( __( 'We are currently experiencing problems trying to connect to this payment gateway. Sorry for the inconvenience.', '' ) );
+			}
+
+			if ( $response['response']['code'] === 500 ) {
+				throw new Exception( __( 'An error was encountered. Please contact us with error code (' . $response['response']['code'] . ').', '' ) );
+			}
+
+			$response_body = wp_remote_retrieve_body( $response );
+			$data = json_decode( $response_body, true );
+
+			if ( $response['response']['code'] === 200 ) {
+				if ( ( $data['success'] === true ) && ( $data['status'] === 'new' ) ) {
+					$order->add_order_note( __( 'Transaction initiated successfully; a USSD prompt or message with Mobile Money payment completion steps has been triggered and sent to: ' . $wallet_number . '.', '' ) );
+					$order->update_status( 'on-hold', __( 'Awaiting Mobile Money payment.<br>', '' ) );
+					$order->reduce_order_stock();
+					WC()->cart->empty_cart();
+
+					return [
+						'result'   => 'success',
+						'redirect' => $this->get_return_url( $order ),
+					];
+				} else {
+					wc_add_notice( __('Payment error:', '') . $response['response']['message'], 'error' );
+					return null;
+				}
+			} else {
+				wc_add_notice( 'An error was encountered. Please contact us with error code (' . $response['response']['code'] . ').', 'error' );
+				$order->add_order_note( 'Error code: ' . $response['response']['code'] . PHP_EOL . 'Status: ' . $response['response']['status'] );
+			}
+			return null;
+		}
+	}
+
+	function ipay_ghana_wc_payment_gateway_label( $methods ) {
+		$methods[] = 'Ipay_Ghana_WC_Payment_Gateway';
+		return $methods;
+	}
+	add_filter( 'woocommerce_payment_gateways', 'ipay_ghana_wc_payment_gateway_label' );
+}
+add_action( 'plugins_loaded', 'init_ipay_ghana_wc_payment_gateway', 0 );
