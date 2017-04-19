@@ -20,7 +20,7 @@ Nothing much. :-) Do navigate to the iPay Ghana WordPress plugin Settings page u
 That tells us the account belongs to you only.
 
 ### I do not have a Merchant key. How do I get one?
-Visit our [get started](https://manage.ipaygh.com/xmanage/get-started/) page and sign up with the easy steps provided.
+Visit our [get started](https://manage.ipaygh.com/xmanage/get-started) page and sign up with the easy steps provided.
 
 ### Do I need to pay something before opening an account?
 A BIG no. You don't have to pay anything in order to set up your merchant account; it's absolutely free.
