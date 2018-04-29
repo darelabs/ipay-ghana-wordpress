@@ -1,6 +1,9 @@
 # ipay-ghana-wordpress
 Receive online payments on your WordPress site in Ghana.
 
+## Download the latest stable version in your prefered format
+[zip format](https://github.com/darelabs/ipay-ghana-wordpress/archive/1.0.0.zip) or [tar.gz format](https://github.com/darelabs/ipay-ghana-wordpress/archive/1.0.0.tar.gz).
+
 ### What is this plugin all about?
 This is a plugin to integrate into your WordPress website and enable you receive payments online from your customers.
 The plugin gathers some simple information from your customer about the item, product, or service to be paid for and redirects them to iPay CheckOut page in order to complete the payment process securely.
