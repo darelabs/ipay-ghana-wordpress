@@ -3,7 +3,7 @@
 Plugin Name: iPay Ghana
 Plugin URI: https://www.ipaygh.com/
 Description: Receive payments online in Ghana. Already have an account? Open one with us <a href="https://manage.ipaygh.com/xmanage/get-started">here</a>. Visit your <a href="https://manage.ipaygh.com/xmanage/">dashboard</a> to monitor your transactions.
-Version: 0.1.0-alpha
+Version: 1.0.1
 Author: Digital Dreams Ltd.
 Author URI: http://www.dareworks.com/
 Text Domain:
@@ -51,6 +51,7 @@ function ipay_ghana_admin_settings_options() {
 	register_setting( 'ipay-ghana-settings-options-group', 'deferred-url' );
 	register_setting( 'ipay-ghana-settings-options-group', 'merchant-key' );
 	register_setting( 'ipay-ghana-settings-options-group', 'cancelled-url' );
+    register_setting( 'ipay-ghana-settings-options-group', 'ipay-ghana-currency' );
     register_setting( 'ipay-ghana-settings-options-group', 'brand-logo-url' );
 	register_setting( 'ipay-ghana-settings-options-group', 'invoice-id-format' );
 	register_setting( 'ipay-ghana-settings-options-group', 'invoice-id-prefix' );
@@ -74,7 +75,7 @@ function ipay_ghana_settings_page() { ?>
 
     <div class="wrap ipay-ghana">
         <h1>iPay Ghana Settings</h1>
-        <p>Define your Merchant key and Invoice ID format here.</p>
+        <p>Define your Merchant key, invoice ID and currency format here.</p>
         <form method="post" action="options.php">
             <?php
             settings_fields( 'ipay-ghana-settings-options-group' );
@@ -131,12 +132,25 @@ function ipay_ghana_settings_page() { ?>
 						            <label for="advance-invoice-id-generator">Put your custom invoice ID instance generator function in the box provided below:</label>
 					            </p>
 					            <p>
-						            <textarea name="advance-invoice-id-generator" rows="10" cols="50" id="advance-invoice-id-generator" class="large-text code" readonly><?php echo "Will be enabled in our next update.\r\nCurrently disabled and will return the default Invoice ID format if selected."; ?></textarea>
+						            <textarea name="advance-invoice-id-generator" rows="10" cols="50" id="advance-invoice-id-generator" class="large-text code" readonly><?php echo "May be enabled in our future updates.\r\nCurrently disabled and will return the default Invoice ID format when selected."; ?></textarea>
 					            </p>
 				            </div>
 			            </fieldset>
 		            </td>
 	            </tr>
+				<tr>
+                    <th scope="row">
+                        <label for="ipay-ghana-currency">Currency</label>
+                    </th>
+                    <td>
+                        <select title="Define a currency" name="ipay-ghana-currency" id="ipay-ghana-currency">
+							<option <?php echo esc_attr( strtoupper( get_option( 'ipay-ghana-currency' ) ) === "GBP" ) ? 'selected="selected"' : ''; ?> value="GBP">Great Britain Pound (GBP)</option>
+							<option <?php echo esc_attr( strtoupper( get_option( 'ipay-ghana-currency' ) ) === "GHS" ) ? 'selected="selected"' : ''; ?> value="GHS">Ghana Cedis (GHS)</option>
+							<option <?php echo esc_attr( get_option( strtoupper( 'ipay-ghana-currency' ) ) === "EUR" ) ? 'selected="selected"' : ''; ?> value="EUR">Euro (EUR)</option>
+							<option <?php echo esc_attr( get_option( strtoupper( 'ipay-ghana-currency' ) ) === "USD" ) ? 'selected="selected"' : ''; ?> value="USD">United States Dollar (USD)</option>
+						</select>
+                    </td>
+                </tr>
                 <tr>
                     <th scope="row">
                         <label>Brand logo URL</label>
@@ -216,6 +230,7 @@ class Ipay_Ghana_Widget extends WP_Widget {
 							<?php echo ! empty( get_option( 'brand-logo-url' )  !== '' ) ? '<h4 class="lead">Payment Details</h4>' : ''; ?>
 
 							<input type="hidden" name="merchant_key" value="<?php echo get_option( 'merchant-key' ); ?>">
+							<input type="hidden" name="currency" value="<?php echo get_option( 'ipay-ghana-currency' ); ?>">
 							<input type="hidden" name="success_url" value="<?php echo get_option( 'success-url' ); ?>">
 							<input type="hidden" name="cancelled_url" value="<?php echo get_option( 'cancelled-url' ); ?>">
 							<input type="hidden" name="deferred_url" value="<?php echo get_option( 'deferred-url' ); ?>"><?php
@@ -224,28 +239,31 @@ class Ipay_Ghana_Widget extends WP_Widget {
 									echo '<input type="hidden" name="invoice_id" value="' . get_option( 'invoice-id-prefix' ) . $GLOBALS['default-invoice-id-sequence'] .'">';
 									break;
 								case 'advance':
-									echo '<!-- advance_invoice-id_sequence (Currently disabled and set to the default Invoice ID format; will be enabled in our next update.) -->';
+									echo '<!-- advance_invoice-id_sequence (Currently disabled and set to the default Invoice ID format; May be enabled in our future updates.) -->';
 									echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['custom-invoice-id-sequence'] . '">';
 									break;
 								default:
 									echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['default-invoice-id-sequence'] . '">';
 									break;
 							} ?>
-
 							<div class="row">
 								<div class="form-group col-xs-12 col-sm-6">
 									<label for="extra-name">Name</label>
 									<input type="text" id="extra-name" name="extra_name" required>
 								</div>
+								<div class="form-group col-xs-12 col-sm-6">
+									<label for="extra-mobile">Contact Number</label>
+									<input type="text" id="extra-mobile" name="extra_mobile" required>
+								</div>
 							</div>
 							<div class="row">
 								<div class="form-group col-xs-12 col-sm-3">
-									<label for="total">Payment Amount</label>
-									<input type="text" id="total" name="total" required>
+									<label for="ipay-ghana-currency">Currency</label>
+									<input type="text" id="ipay-ghana-currency" value="<?php echo esc_attr( get_option( "ipay-ghana-currency" ) ); ?>" name="currency" disabled required>
 								</div>
 								<div class="form-group col-xs-12 col-sm-3">
-									<label for="extra-mobile">Contact Number</label>
-									<input type="text" id="extra-mobile" name="extra_mobile" required>
+									<label for="total">Payment Amount</label>
+									<input type="text" id="total" name="total" required>
 								</div>
 								<div class="form-group col-xs-12 col-sm-6">
 									<label for="extra-email">Email [Optional]</label>
