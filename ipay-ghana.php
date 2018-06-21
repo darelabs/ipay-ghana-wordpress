@@ -3,7 +3,7 @@
 Plugin Name: iPay Ghana
 Plugin URI: https://www.ipaygh.com/
 Description: Receive payments online in Ghana. Already have an account? Open one with us <a href="https://manage.ipaygh.com/xmanage/get-started">here</a>. Visit your <a href="https://manage.ipaygh.com/xmanage/">dashboard</a> to monitor your transactions.
-Version: 1.0.1
+Version: 1.0.2
 Author: Digital Dreams Ltd.
 Author URI: http://www.dareworks.com/
 Text Domain:
