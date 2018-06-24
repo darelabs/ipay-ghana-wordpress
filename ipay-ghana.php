@@ -259,7 +259,7 @@ class Ipay_Ghana_Widget extends WP_Widget {
 							<div class="row">
 								<div class="form-group col-xs-12 col-sm-3">
 									<label for="ipay-ghana-currency">Currency</label>
-									<input type="text" id="ipay-ghana-currency" value="<?php echo esc_attr( get_option( "ipay-ghana-currency" ) ); ?>" name="currency" disabled required>
+									<input type="text" id="ipay-ghana-currency" value="<?php echo esc_attr( get_option( "ipay-ghana-currency" ) ); ?>" disabled required>
 								</div>
 								<div class="form-group col-xs-12 col-sm-3">
 									<label for="total">Payment Amount</label>
