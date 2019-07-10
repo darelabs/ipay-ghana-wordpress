@@ -9,7 +9,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 function ipay_ghana_uninstall_options() {
     delete_option( 'success-url' );
-    delete_option( 'deferred-url' );
+    delete_option( 'source' );
     delete_option( 'merchant-key' );
     delete_option( 'cancelled-url' );
     delete_option( 'brand-logo-url' );

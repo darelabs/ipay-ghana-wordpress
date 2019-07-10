@@ -2,7 +2,7 @@
 
 	'use strict';
 
-	var api = 'https://community.ipaygh.com/',
+	var api = 'https://manage.ipaygh.com/gateway/checkout',
 		ipayGhanaPaymentModal = $( '#ipay-ghana-payment-modal' ),
 		ipayGhanaPaymentForm = $( '#ipay-ghana-payment-form' ),
 		ipayGhanaPay = $( '#ipay-ghana-pay' ),
@@ -12,7 +12,7 @@
 		phoneNumber = $( '#phone-number' ),
 		ipayGhanaInvoiceId = $( document ).find( 'input[name="invoice_id"]' ).attr( 'value' ),
 		ipayGhanaMerchantKey = $( document ).find( 'input[name="merchant_key"]' ).attr( 'value' ),
-		extraMobileNo = $( 'input[name="extra_mobile_no"]' );
+		extraMobileNo = $( 'input[name="extra_mobile"]' );
 
 	ipayGhanaPay.show().append( 'Check out' );
 	ipayGhanaDismissModal.show().append( 'Cancel' );

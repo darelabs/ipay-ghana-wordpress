@@ -2,20 +2,23 @@
 /*
 Plugin Name: iPay Ghana
 Plugin URI: https://www.ipaygh.com/
-Description: Receive payments online in Ghana. Already have an account? Open one with us <a href="https://manage.ipaygh.com/xmanage/get-started">here</a>. Visit your <a href="https://manage.ipaygh.com/xmanage/">dashboard</a> to monitor your transactions.
-Version: 1.0.2
-Author: Digital Dreams Ltd.
-Author URI: http://www.dareworks.com/
+Description: Receive payments on your WordPress website in Ghana. Already have an account? Open one with us <a href="https://manage.ipaygh.com/xmanage/get-started">here</a>. Visit your <a href="https://manage.ipaygh.com/xmanage/">dashboard</a> to monitor your transactions.
+Version: 1.0.3
+Author: iPay Solutions Ltd.
+Author URI: https://www.ipaygh.com/
 Text Domain:
 Domain Path:
 License: GNU General Public License v3.0
 */
+
+
 /**
  * Exit if accessed directly.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit();
 }
+
 $GLOBALS['default-invoice-id-sequence'] = date( 'ymdHis', time() );
 $GLOBALS['custom-invoice-id-sequence']  = $GLOBALS['default-invoice-id-sequence'];
 function ipay_ghana_admin_styles_and_scripts() {
@@ -48,7 +51,7 @@ function ipay_ghana_plugin_support( $meta, $plugin_file ) {
 add_filter( 'plugin_row_meta', 'ipay_ghana_plugin_support', 10, 4 );
 function ipay_ghana_admin_settings_options() {
 	register_setting( 'ipay-ghana-settings-options-group', 'success-url' );
-	register_setting( 'ipay-ghana-settings-options-group', 'deferred-url' );
+	//register_setting( 'ipay-ghana-settings-options-group', 'deferred-url' );
 	register_setting( 'ipay-ghana-settings-options-group', 'merchant-key' );
 	register_setting( 'ipay-ghana-settings-options-group', 'cancelled-url' );
     register_setting( 'ipay-ghana-settings-options-group', 'ipay-ghana-currency' );
@@ -75,7 +78,7 @@ function ipay_ghana_settings_page() { ?>
 
     <div class="wrap ipay-ghana">
         <h1>iPay Ghana Settings</h1>
-        <p>Define your Merchant key, invoice ID and currency format here.</p>
+        <p>Define your Merchant key, invoice ID here.</p>
         <form method="post" action="options.php">
             <?php
             settings_fields( 'ipay-ghana-settings-options-group' );
@@ -144,10 +147,10 @@ function ipay_ghana_settings_page() { ?>
                     </th>
                     <td>
                         <select title="Define a currency" name="ipay-ghana-currency" id="ipay-ghana-currency">
-							<option <?php echo esc_attr( strtoupper( get_option( 'ipay-ghana-currency' ) ) === "GBP" ) ? 'selected="selected"' : ''; ?> value="GBP">Great Britain Pound (GBP)</option>
+							<!-- <option <?php echo esc_attr( strtoupper( get_option( 'ipay-ghana-currency' ) ) === "GBP" ) ? 'selected="selected"' : ''; ?> value="GBP">Great Britain Pound (GBP)</option> -->
 							<option <?php echo esc_attr( strtoupper( get_option( 'ipay-ghana-currency' ) ) === "GHS" ) ? 'selected="selected"' : ''; ?> value="GHS">Ghana Cedis (GHS)</option>
-							<option <?php echo esc_attr( get_option( strtoupper( 'ipay-ghana-currency' ) ) === "EUR" ) ? 'selected="selected"' : ''; ?> value="EUR">Euro (EUR)</option>
-							<option <?php echo esc_attr( get_option( strtoupper( 'ipay-ghana-currency' ) ) === "USD" ) ? 'selected="selected"' : ''; ?> value="USD">United States Dollar (USD)</option>
+							<!-- <option <?php echo esc_attr( get_option( strtoupper( 'ipay-ghana-currency' ) ) === "EUR" ) ? 'selected="selected"' : ''; ?> value="EUR">Euro (EUR)</option>
+							<option <?php echo esc_attr( get_option( strtoupper( 'ipay-ghana-currency' ) ) === "USD" ) ? 'selected="selected"' : ''; ?> value="USD">United States Dollar (USD)</option> -->
 						</select>
                     </td>
                 </tr>
@@ -164,7 +167,7 @@ function ipay_ghana_settings_page() { ?>
                         <label>Success URL</label>
                     </th>
                     <td>
-                        <input type="text" title="Define a URL to redirect on success here" class="regular-text" name="success-url" value="<?php echo esc_attr( get_option( 'success-url' ) ); ?>"/>
+                        <input type="text" title="The page to which iPay will redirect the user after user completes the iPay checkout process. Please note that this does not mean that payment has been received!" class="regular-text" name="success-url" value="<?php echo esc_attr( get_option( 'success-url' ) ); ?>"/>
                     </td>
                 </tr>
                 <tr>
@@ -172,17 +175,17 @@ function ipay_ghana_settings_page() { ?>
                         <label>Cancelled URL</label>
                     </th>
                     <td>
-                        <input type="text" title="Define a URL to redirect on cancel here" class="regular-text" name="cancelled-url" value="<?php echo esc_attr( get_option( 'cancelled-url' ) ); ?>"/>
+                        <input type="text" title="The page to which iPay will redirect the user after user cancels payment" class="regular-text" name="cancelled-url" value="<?php echo esc_attr( get_option( 'cancelled-url' ) ); ?>"/>
                     </td>
                 </tr>
-                <tr>
+                <!-- <tr>
                     <th scope="row">
                         <label>Deferred URL</label>
                     </th>
                     <td>
                         <input type="text" title="Define a URL to redirect on defer here" class="regular-text" name="deferred-url" value="<?php echo esc_attr( get_option( 'deferred-url' ) ); ?>"/>
                     </td>
-                </tr>
+                </tr> -->
             </table>
             <?php submit_button(); ?>
 
@@ -202,7 +205,7 @@ class Ipay_Ghana_Widget extends WP_Widget {
 		parent::__construct(
 			'ipay-ghana-widget',
 			esc_html__( 'iPay Ghana', '' ),
-			array( 'description' => esc_html__( 'Receive payments online in Ghana.', '' ) )
+			array( 'description' => esc_html__( 'Receive payments online on your WordPress website in Ghana.', '' ) )
 		);
 	}
 	public function widget( $args, $instance ) {
@@ -217,14 +220,13 @@ class Ipay_Ghana_Widget extends WP_Widget {
 		<div id="ipay-ghana-payment-modal" class="modal fade" role="dialog" tabindex="-1">
 			<div class="modal-dialog">
 				<div class="modal-content">
-					<form method="post" action="https://community.ipaygh.com/gateway" id="ipay-ghana-payment-form" target="_blank">
+					<form method="post" action="https://manage.ipaygh.com/gateway/checkout" id="ipay-ghana-payment-form" target="_blank">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal">&times;</button>
 							<?php echo ! empty( get_option( 'brand-logo-url' )  !== '' ) ?
 								'<img src="' .get_option( 'brand-logo-url' ) . '" width="180px" height="70px" class="center-block" alt="' . get_bloginfo( 'name' ) . '"/>' :
 								'<h4 class="lead">Payment Details</h4>';
 							?>
-
 						</div>
 						<div class="modal-body">
 							<?php echo ! empty( get_option( 'brand-logo-url' )  !== '' ) ? '<h4 class="lead">Payment Details</h4>' : ''; ?>
@@ -233,19 +235,22 @@ class Ipay_Ghana_Widget extends WP_Widget {
 							<input type="hidden" name="currency" value="<?php echo get_option( 'ipay-ghana-currency' ); ?>">
 							<input type="hidden" name="success_url" value="<?php echo get_option( 'success-url' ); ?>">
 							<input type="hidden" name="cancelled_url" value="<?php echo get_option( 'cancelled-url' ); ?>">
-							<input type="hidden" name="deferred_url" value="<?php echo get_option( 'deferred-url' ); ?>"><?php
-							switch ( get_option( 'invoice-id-format' ) ) {
-								case 'custom':
-									echo '<input type="hidden" name="invoice_id" value="' . get_option( 'invoice-id-prefix' ) . $GLOBALS['default-invoice-id-sequence'] .'">';
-									break;
-								case 'advance':
-									echo '<!-- advance_invoice-id_sequence (Currently disabled and set to the default Invoice ID format; May be enabled in our future updates.) -->';
-									echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['custom-invoice-id-sequence'] . '">';
-									break;
-								default:
-									echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['default-invoice-id-sequence'] . '">';
-									break;
-							} ?>
+							<input type="hidden" name="source" value="WORDPRESS">
+							<input type="hidden" id="ipay-ghana-currency" value="<?php echo esc_attr( get_option( "ipay-ghana-currency" ) ); ?>" name="currency">
+							<?php
+								switch ( get_option( 'invoice-id-format' ) ) {
+									case 'custom':
+										echo '<input type="hidden" name="invoice_id" value="' . get_option( 'invoice-id-prefix' ) . $GLOBALS['default-invoice-id-sequence'] .'">';
+										break;
+									case 'advance':
+										echo '<!-- advance_invoice-id_sequence (Currently disabled and set to the default Invoice ID format; May be enabled in our future updates.) -->';
+										echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['custom-invoice-id-sequence'] . '">';
+										break;
+									default:
+										echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['default-invoice-id-sequence'] . '">';
+										break;
+								} 
+							?>
 							<div class="row">
 								<div class="form-group col-xs-12 col-sm-6">
 									<label for="extra-name">Name</label>
@@ -257,30 +262,26 @@ class Ipay_Ghana_Widget extends WP_Widget {
 								</div>
 							</div>
 							<div class="row">
-								<div class="form-group col-xs-12 col-sm-3">
-									<label for="ipay-ghana-currency">Currency</label>
-									<input type="text" id="ipay-ghana-currency" value="<?php echo esc_attr( get_option( "ipay-ghana-currency" ) ); ?>" disabled required>
-								</div>
-								<div class="form-group col-xs-12 col-sm-3">
-									<label for="total">Payment Amount</label>
-									<input type="text" id="total" name="total" required>
-								</div>
 								<div class="form-group col-xs-12 col-sm-6">
 									<label for="extra-email">Email [Optional]</label>
 									<input type="text" id="extra-email" name="extra_email">
+								</div>
+								<div class="form-group col-xs-12 col-sm-6">
+									<label for="total">Amount</label>
+									<input type="text" id="total" name="total" required>
 								</div>
 							</div>
 							<div class="row">
 								<div class="form-group col-xs-12">
 									<label for="description">Description of Payment/ Item Order Number</label>
-									<textarea rows="3" id="description" name="description" required><?php echo apply_filters( 'widget_title', $instance['payment-collection-description'] );?></textarea>
+									<textarea rows="2" id="description" name="description" required><?php echo apply_filters( 'widget_title', $instance['payment-collection-description'] );?></textarea>
 								</div>
 							</div>
 							<div id="ipay-ghana-payment-progress" style="display: none;"></div>
 							<div id="ipay-ghana-payment-summary" class="well well-sm" style="display: none;"></div>
 						</div>
 						<div class="modal-footer">
-							<img class="powered-by" src="<?php echo plugins_url( '/assets/img/powered-by-ipay-ghana.jpeg', __FILE__ );?>" alt="Powered by iPay Ghana" />
+							<img class="powered-by" src="https://payments.ipaygh.com/app/webroot/img/iPay_payments.png" alt="Powered by iPay Ghana" />
 							<button type="button" class="btn btn-default" id="ipay-ghana-dismiss-modal" style="display: none;" data-dismiss="modal"></button>
 							<button class="btn btn-cancel" id="ipay-ghana-pay" style="display: none;"></button>
 							<button class="btn btn-cancel" id="ipay-ghana-check-status" style="display: none;"></button>
