@@ -156,10 +156,16 @@ function ipay_ghana_settings_page() { ?>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label>Brand logo URL</label>
+                        <label>Brand logo</label>
                     </th>
                     <td>
-                        <input type="text" title="Define a URL to load your brand logo" class="regular-text" name="brand-logo-url" value="<?php echo esc_attr( get_option( 'brand-logo-url' ) ); ?>"/>
+                        <?php
+                        $logo_url = esc_attr( get_option( 'brand-logo-url' ) );
+                         $logo_url =empty($logo_url)? plugin_dir_url( __FILE__ ) . 'assets/img/brand_logo.png':$logo_url;
+                        ?>
+                        <img class="img img-thumbnail" width="100" id="logoHolder" src="<?php echo $logo_url; ?>">
+                        <p> Click on image to upload/change your brand logo</p>
+                        <input type="hidden" id="brand-logo-url" name="brand-logo-url" value="<?php echo esc_attr( get_option( 'brand-logo-url' ) ); ?>"/>
                     </td>
                 </tr>
                 <tr>
@@ -249,7 +255,7 @@ class Ipay_Ghana_Widget extends WP_Widget {
 									default:
 										echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['default-invoice-id-sequence'] . '">';
 										break;
-								} 
+								}
 							?>
 							<div class="row">
 								<div class="form-group col-xs-12 col-sm-6">
