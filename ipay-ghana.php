@@ -156,10 +156,16 @@ function ipay_ghana_settings_page() { ?>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label>Brand logo URL</label>
+                        <label>Brand logo</label>
                     </th>
                     <td>
-                        <input type="text" title="Define a URL to load your brand logo" class="regular-text" name="brand-logo-url" value="<?php echo esc_attr( get_option( 'brand-logo-url' ) ); ?>"/>
+                        <?php
+                        $logo_url = esc_attr( get_option( 'brand-logo-url' ) );
+                         $logo_url =empty($logo_url)? plugin_dir_url( __FILE__ ) . 'assets/img/brand_logo.png':$logo_url;
+                        ?>
+                        <img class="img img-thumbnail" width="100" id="logoHolder" src="<?php echo $logo_url; ?>">
+                        <p> Click on image to upload/change your brand logo</p>
+                        <input type="hidden" id="brand-logo-url" name="brand-logo-url" value="<?php echo esc_attr( get_option( 'brand-logo-url' ) ); ?>"/>
                     </td>
                 </tr>
                 <tr>
@@ -249,7 +255,7 @@ class Ipay_Ghana_Widget extends WP_Widget {
 									default:
 										echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['default-invoice-id-sequence'] . '">';
 										break;
-								} 
+								}
 							?>
 							<div class="row">
 								<div class="form-group col-xs-12 col-sm-6">
@@ -325,3 +331,102 @@ function register_ipay_ghana_widget() {
 	register_widget( 'Ipay_Ghana_Widget' );
 }
 add_action( 'widgets_init', 'register_ipay_ghana_widget' );
+
+/**
+ * to display pay button using shortcodes
+ */
+function ipay_ghana_short_code( $attr, $content ) {
+
+	extract(shortcode_atts(array('button_name'=>'Make Payment'),$attr,'ipay_ghana'));
+	
+	ob_start();
+	?>
+	
+    <div id="ipay-ghana-payment-modal" class="modal fade" role="dialog" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="https://manage.ipaygh.com/gateway/checkout" id="ipay-ghana-payment-form"
+                      target="_blank">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <?php echo ! empty( get_option( 'brand-logo-url' ) !== '' ) ?
+                            '<img src="' . get_option( 'brand-logo-url' ) . '" width="180px" height="70px" class="center-block" alt="' . get_bloginfo( 'name' ) . '"/>' :
+                            '<h4 class="lead">Payment Details</h4>';
+                        ?>
+                    </div>
+                    <div class="modal-body">
+                        <?php echo ! empty( get_option( 'brand-logo-url' ) !== '' ) ? '<h4 class="lead">Payment Details</h4>' : ''; ?>
+
+                        <input type="hidden" name="merchant_key" value="<?php echo get_option( 'merchant-key' ); ?>">
+                        <input type="hidden" name="currency" value="<?php echo get_option( 'ipay-ghana-currency' ); ?>">
+                        <input type="hidden" name="success_url" value="<?php echo get_option( 'success-url' ); ?>">
+                        <input type="hidden" name="cancelled_url" value="<?php echo get_option( 'cancelled-url' ); ?>">
+                        <input type="hidden" name="source" value="WORDPRESS">
+                        <input type="hidden" id="ipay-ghana-currency"
+                               value="<?php echo esc_attr( get_option( "ipay-ghana-currency" ) ); ?>" name="currency">
+                        <?php
+                        switch ( get_option( 'invoice-id-format' ) ) {
+                            case 'custom':
+                                echo '<input type="hidden" name="invoice_id" value="' . get_option( 'invoice-id-prefix' ) . $GLOBALS['default-invoice-id-sequence'] . '">';
+                                break;
+                            case 'advance':
+                                echo '<!-- advance_invoice-id_sequence (Currently disabled and set to the default Invoice ID format; May be enabled in our future updates.) -->';
+                                echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['custom-invoice-id-sequence'] . '">';
+                                break;
+                            default:
+                                echo '<input type="hidden" name="invoice_id" value="' . $GLOBALS['default-invoice-id-sequence'] . '">';
+                                break;
+                        }
+                        ?>
+                        <div class="row">
+                            <div class="form-group col-xs-12 col-sm-6">
+                                <label for="extra-name">Name</label>
+                                <input type="text" id="extra-name" name="extra_name" required>
+                            </div>
+                            <div class="form-group col-xs-12 col-sm-6">
+                                <label for="extra-mobile">Contact Number</label>
+                                <input type="text" id="extra-mobile" name="extra_mobile" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-xs-12 col-sm-6">
+                                <label for="extra-email">Email [Optional]</label>
+                                <input type="text" id="extra-email" name="extra_email">
+                            </div>
+                            <div class="form-group col-xs-12 col-sm-6">
+                                <label for="total">Amount</label>
+                                <input type="text" id="total" name="total" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-xs-12">
+                                <label for="description">Description of Payment/ Item Order Number</label>
+                                <textarea rows="2" id="description" name="description"
+                                          required><?php echo apply_filters( 'widget_title', $instance['payment-collection-description'] ); ?></textarea>
+                            </div>
+                        </div>
+                        <div id="ipay-ghana-payment-progress" style="display: none;"></div>
+                        <div id="ipay-ghana-payment-summary" class="well well-sm" style="display: none;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <img class="powered-by" src="https://payments.ipaygh.com/app/webroot/img/iPay_payments.png"
+                             alt="Powered by iPay Ghana"/>
+                        <button type="button" class="btn btn-default" id="ipay-ghana-dismiss-modal"
+                                style="display: none;" data-dismiss="modal"></button>
+                        <button class="btn btn-cancel" id="ipay-ghana-pay" style="display: none;"></button>
+                        <button class="btn btn-cancel" id="ipay-ghana-check-status" style="display: none;"></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php
+    $modal_content = ob_get_contents();
+	ob_end_clean();
+	$html_display = '<button type="button" class="btn btn-info" data-toggle="modal" data-backdrop="static" data-target="#ipay-ghana-payment-modal">' . esc_html__( $button_name ) . '</button>';
+	$html_display .= $modal_content;
+	return $html_display;
+}
+add_shortcode( 'ipay', 'ipay_ghana_short_code' );
+
+

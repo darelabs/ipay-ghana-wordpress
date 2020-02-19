@@ -43,3 +43,10 @@ Visit our [get started](https://manage.ipaygh.com/xmanage/get-started) page and 
 
 ### Do I need to pay something before opening an account?
 A BIG no. You don't have to pay anything in order to set up your merchant account with [iPay Ghana](https://www.ipaygh.com); it's absolutely free.
+
+### How to include the pay button
+the IPAY button can be included anywhere in a post or a page by using the short code.
+just add a short code block and type the code below
+```[ipay button_name='Make Payment' /]```
+
+
